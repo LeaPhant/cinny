@@ -62,7 +62,7 @@ const elementToCustomHtml = (node: CustomElement, children: string): string => {
       }
 
       const matrixTo = `https://matrix.to/#/${fragment}`;
-      return `<a href="${encodeURIComponent(matrixTo)}">${sanitizeText(node.name)}</a>`;
+      return `<a href="${matrixTo}">${sanitizeText(node.name)}</a>`;
     }
     case BlockType.Emoticon:
       return node.key.startsWith('mxc://')
