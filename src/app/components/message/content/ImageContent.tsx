@@ -78,11 +78,9 @@ export const ImageContent = as<'div', ImageContentProps>(
     const [error, setError] = useState(false);
     const [viewer, setViewer] = useState(false);
 
-    const imageUrl = new URL(url).protocol == 'mxc:' ? mx.mxcUrlToHttp(url) : url;
-
     const [srcState, loadSrc] = useAsyncCallback(
       useCallback(async () => {
-        const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication) ?? url;
+        const mediaUrl = new URL(url).protocol == 'mxc:' ? mxcUrlToHttp(mx, url, useAuthentication) ?? url : url;
         if (encInfo) {
           const fileContent = await downloadEncryptedMedia(mediaUrl, (encBuf) =>
             decryptFile(encBuf, mimeType ?? FALLBACK_MIMETYPE, encInfo)
