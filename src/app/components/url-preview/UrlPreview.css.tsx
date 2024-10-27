@@ -4,8 +4,8 @@ import { DefaultReset, color, config, toRem } from 'folds';
 export const UrlPreview = style([
   DefaultReset,
   {
-    width: toRem(400),
-    minHeight: toRem(102),
+    maxWidth: toRem(500),
+    minHeight: toRem(16),
     backgroundColor: color.SurfaceVariant.Container,
     color: color.SurfaceVariant.OnContainer,
     border: `${config.borderWidth.B300} solid ${color.SurfaceVariant.ContainerLine}`,
@@ -20,7 +20,7 @@ export const UrlPreviewImg = style([
     width: toRem(100),
     height: toRem(100),
     objectFit: 'cover',
-    objectPosition: 'left',
+    objectPosition: 'center',
     backgroundPosition: 'start',
     flexShrink: 0,
     overflow: 'hidden',

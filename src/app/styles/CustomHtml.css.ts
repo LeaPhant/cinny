@@ -104,7 +104,8 @@ export const Img = style([
   DefaultReset,
   MarginSpaced,
   {
-    maxWidth: toRem(296),
+    maxWidth: toRem(400),
+    maxHeight: toRem(500),
     borderRadius: config.radii.R300,
   },
 ]);

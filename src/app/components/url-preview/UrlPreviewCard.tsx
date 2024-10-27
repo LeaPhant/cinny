@@ -1,20 +1,35 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { IPreviewUrlResponse } from 'matrix-js-sdk';
-import { Box, Icon, IconButton, Icons, Scroll, Spinner, Text, as, color, config } from 'folds';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { IPreviewUrlResponse, MsgType } from 'matrix-js-sdk';
+import { Box, Icon, IconButton, Icons, Scroll, Spinner, Text, as, color, config, toRem } from 'folds';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { UrlPreview, UrlPreviewContent, UrlPreviewDescription, UrlPreviewImg } from './UrlPreview';
+import { scaleDimension } from '../../utils/common';
+import { ImageContent } from '../message/content/ImageContent';
+import { VideoContent } from '../message/content/VideoContent';
+import { EmbedImage, Video } from '../media';
+import { ImageViewer } from '../image-viewer';
+import { MImage, MVideo } from '../message';
 import {
   getIntersectionObserverEntry,
   useIntersectionObserver,
 } from '../../hooks/useIntersectionObserver';
 import * as css from './UrlPreviewCard.css';
 import { tryDecodeURIComponent } from '../../utils/dom';
+import {
+  IImageContent, IVideoContent
+} from '../../../types/matrix/common';
+
 
 const linkStyles = { color: color.Success.Main };
 
-export const UrlPreviewCard = as<'div', { url: string; ts: number }>(
+const renderFile = () => (
+  <></>
+);
+
+export const UrlPreviewCard = as<'div', { url: string, ts: number }>(
   ({ url, ts, ...props }, ref) => {
+    const urlObj = new URL(url);
     const mx = useMatrixClient();
     const [previewStatus, loadPreview] = useAsyncCallback(
       useCallback(() => mx.getUrlPreview(url, ts), [url, ts, mx])
@@ -24,10 +39,139 @@ export const UrlPreviewCard = as<'div', { url: string; ts: number }>(
       loadPreview();
     }, [loadPreview]);
 
-    if (previewStatus.status === AsyncStatus.Error) return null;
+    //if (previewStatus.status === AsyncStatus.Error) return null;
 
-    const renderContent = (prev: IPreviewUrlResponse) => {
-      const imgUrl = mx.mxcUrlToHttp(prev['og:image'] || '', 256, 256, 'scale', false);
+    const renderContent = (prev?: IPreviewUrlResponse) => {
+      const ext = urlObj.pathname.split('.').pop() || '';
+
+      if (['mp4', 'webm', 'mov'].includes(ext)) {
+        const content: IVideoContent = {
+          msgtype: MsgType.Video,
+          url: url || '',
+          info: {
+            w: 600,
+            h: 400,
+            mimetype: 'video/mp4'
+          }
+        };
+
+        return <MVideo
+          content={content}
+          renderAsFile={renderFile}
+          renderVideoContent={({ body, info, mimeType, url, encInfo }) => (
+            <VideoContent
+              body={body}
+              info={info}
+              mimeType={mimeType}
+              url={url}
+              encInfo={encInfo}
+              renderVideo={(p) => <Video {...p} />}
+            />
+          )}
+          outlined={false}
+        />;
+      }
+
+      if (['youtu.be', 'youtube.com', 'www.youtube.com', 'music.youtube.com'].includes(urlObj.host)) {
+        let timestamp = 0;
+
+        const params = new URLSearchParams(urlObj.search);
+
+        if (params.has('t')) {
+          const t = parseInt(params.get('t') || '');
+
+          if (!isNaN(t)) timestamp = t;
+        }
+
+        let videoId = '';
+
+        if (params.has('v')) {
+          videoId = params.get('v') || '';
+        } else {
+          videoId = urlObj.pathname.split('/').pop() || '';
+        }
+
+        if (videoId.length === 0) return null; 
+
+        const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?t=${timestamp}`;
+
+        return <iframe 
+          width="500" 
+          height="282" 
+          src={embedUrl}
+          frameBorder="0"
+          title="YouTube video player" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen>
+        </iframe>;
+      }
+
+      if (prev === undefined) return null;
+
+      if (urlObj.host == 'tenor.com') {
+        const dim = scaleDimension(Number(prev['og:player:width']), Number(prev['og:player:height']), 16, 16, 500, 400);
+        const videoUrl = String(prev['og:video']) ?? '';
+
+        const content: IVideoContent = {
+          msgtype: MsgType.Video,
+          url: videoUrl || '',
+          info: {
+            w: dim.w,
+            h: dim.h,
+            mimetype: 'video/mp4'
+          }
+        };
+
+        return <MVideo
+          content={content}
+          renderAsFile={renderFile}
+          renderVideoContent={({ body, info, mimeType, url, encInfo }) => (
+            <VideoContent
+              body={body}
+              info={info}
+              autoPlay={true}
+              loop={true}
+              controls={false}
+              mimeType={mimeType}
+              url={url}
+              encInfo={encInfo}
+              renderVideo={(p) => <Video {...p} />}
+            />
+          )}
+          outlined={false}
+        />;
+      }
+
+      const imgUrl = mx.mxcUrlToHttp(prev['og:image'] || '', 500, 600, 'scale', false);
+
+      if (prev['og:title'] === undefined && prev['og:image'] !== undefined) {
+        const url = prev['og:image'];
+
+        const content: IImageContent = {
+          msgtype: MsgType.Image,
+          url: url || '',
+          info: {
+            w: prev['og:image:width'] || 500,
+            h: prev['og:image:height'] || 500,
+            mimetype: prev['og:image:type'],
+            size: prev['matrix:image:size']
+          }
+        };
+
+        return <MImage
+          content={content}
+          renderImageContent={(props) => (
+            <ImageContent
+              {...props}
+              autoPlay={true}
+              renderImage={(p) => <EmbedImage {...p} loading="lazy" />}
+              renderViewer={(p) => <ImageViewer {...p} />}
+            />
+          )}
+          outlined={false}
+        />
+      }
 
       return (
         <>
@@ -61,8 +205,11 @@ export const UrlPreviewCard = as<'div', { url: string; ts: number }>(
       <UrlPreview {...props} ref={ref}>
         {previewStatus.status === AsyncStatus.Success ? (
           renderContent(previewStatus.data)
-        ) : (
-          <Box grow="Yes" alignItems="Center" justifyContent="Center">
+        ) :
+          previewStatus.status === AsyncStatus.Error ? (
+            renderContent()
+          ) : (
+          <Box grow="Yes" style={{minWidth: `100px`, minHeight: `100px`}} alignItems="Center" justifyContent="Center">
             <Spinner variant="Secondary" size="400" />
           </Box>
         )}
@@ -72,111 +219,16 @@ export const UrlPreviewCard = as<'div', { url: string; ts: number }>(
 );
 
 export const UrlPreviewHolder = as<'div'>(({ children, ...props }, ref) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const backAnchorRef = useRef<HTMLDivElement>(null);
-  const frontAnchorRef = useRef<HTMLDivElement>(null);
-  const [backVisible, setBackVisible] = useState(true);
-  const [frontVisible, setFrontVisible] = useState(true);
-
-  const intersectionObserver = useIntersectionObserver(
-    useCallback((entries) => {
-      const backAnchor = backAnchorRef.current;
-      const frontAnchor = frontAnchorRef.current;
-      const backEntry = backAnchor && getIntersectionObserverEntry(backAnchor, entries);
-      const frontEntry = frontAnchor && getIntersectionObserverEntry(frontAnchor, entries);
-      if (backEntry) {
-        setBackVisible(backEntry.isIntersecting);
-      }
-      if (frontEntry) {
-        setFrontVisible(frontEntry.isIntersecting);
-      }
-    }, []),
-    useCallback(
-      () => ({
-        root: scrollRef.current,
-        rootMargin: '10px',
-      }),
-      []
-    )
-  );
-
-  useEffect(() => {
-    const backAnchor = backAnchorRef.current;
-    const frontAnchor = frontAnchorRef.current;
-    if (backAnchor) intersectionObserver?.observe(backAnchor);
-    if (frontAnchor) intersectionObserver?.observe(frontAnchor);
-    return () => {
-      if (backAnchor) intersectionObserver?.unobserve(backAnchor);
-      if (frontAnchor) intersectionObserver?.unobserve(frontAnchor);
-    };
-  }, [intersectionObserver]);
-
-  const handleScrollBack = () => {
-    const scroll = scrollRef.current;
-    if (!scroll) return;
-    const { offsetWidth, scrollLeft } = scroll;
-    scroll.scrollTo({
-      left: scrollLeft - offsetWidth / 1.3,
-      behavior: 'smooth',
-    });
-  };
-  const handleScrollFront = () => {
-    const scroll = scrollRef.current;
-    if (!scroll) return;
-    const { offsetWidth, scrollLeft } = scroll;
-    scroll.scrollTo({
-      left: scrollLeft + offsetWidth / 1.3,
-      behavior: 'smooth',
-    });
-  };
-
   return (
     <Box
       direction="Column"
+      alignItems="Start"
       {...props}
       ref={ref}
       style={{ marginTop: config.space.S200, position: 'relative' }}
+      gap="200"
     >
-      <Scroll ref={scrollRef} direction="Horizontal" size="0" visibility="Hover" hideTrack>
-        <Box shrink="No" alignItems="Center">
-          <div ref={backAnchorRef} />
-          {!backVisible && (
-            <>
-              <div className={css.UrlPreviewHolderGradient({ position: 'Left' })} />
-              <IconButton
-                className={css.UrlPreviewHolderBtn({ position: 'Left' })}
-                variant="Secondary"
-                radii="Pill"
-                size="300"
-                outlined
-                onClick={handleScrollBack}
-              >
-                <Icon size="300" src={Icons.ArrowLeft} />
-              </IconButton>
-            </>
-          )}
-          <Box alignItems="Inherit" gap="200">
-            {children}
-
-            {!frontVisible && (
-              <>
-                <div className={css.UrlPreviewHolderGradient({ position: 'Right' })} />
-                <IconButton
-                  className={css.UrlPreviewHolderBtn({ position: 'Right' })}
-                  variant="Primary"
-                  radii="Pill"
-                  size="300"
-                  outlined
-                  onClick={handleScrollFront}
-                >
-                  <Icon size="300" src={Icons.ArrowRight} />
-                </IconButton>
-              </>
-            )}
-            <div ref={frontAnchorRef} />
-          </Box>
-        </Box>
-      </Scroll>
+      {children}
     </Box>
   );
 });

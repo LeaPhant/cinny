@@ -602,7 +602,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
 
           if (document.hasFocus()) {
             scrollToBottomRef.current.count += 1;
-            scrollToBottomRef.current.smooth = true;
+            scrollToBottomRef.current.smooth = false;
           } else if (!unreadInfo) {
             setUnreadInfo(getRoomUnreadInfo(room));
           }
@@ -743,7 +743,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
   useLayoutEffect(() => {
     const scrollEl = scrollRef.current;
     if (scrollEl) {
-      scrollToBottom(scrollEl);
+      requestAnimationFrame(() => { scrollToBottom(scrollEl) });
     }
   }, []);
 

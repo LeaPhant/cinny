@@ -32,6 +32,7 @@ type RenderVideoProps = {
   onLoadedMetadata: () => void;
   onError: () => void;
   autoPlay: boolean;
+  loop: boolean;
   controls: boolean;
 };
 type VideoContentProps = {
@@ -41,6 +42,8 @@ type VideoContentProps = {
   info: IVideoInfo & IThumbnailContent;
   encInfo?: EncryptedAttachmentInfo;
   autoPlay?: boolean;
+  controls?: boolean;
+  loop?: boolean;
   renderThumbnail?: () => ReactNode;
   renderVideo: (props: RenderVideoProps) => ReactNode;
 };
@@ -54,6 +57,8 @@ export const VideoContent = as<'div', VideoContentProps>(
       info,
       encInfo,
       autoPlay,
+      loop,
+      controls,
       renderThumbnail,
       renderVideo,
       ...props
@@ -66,9 +71,11 @@ export const VideoContent = as<'div', VideoContentProps>(
     const [load, setLoad] = useState(false);
     const [error, setError] = useState(false);
 
+    const videoUrl = new URL(url).protocol == 'mxc:' ? mx.mxcUrlToHttp(url) : url;
+
     const [srcState, loadSrc] = useAsyncCallback(
       useCallback(
-        () => getFileSrcUrl(mx.mxcUrlToHttp(url) ?? '', mimeType, encInfo),
+        () => getFileSrcUrl(videoUrl ?? '', mimeType, encInfo),
         [mx, url, mimeType, encInfo]
       )
     );
@@ -128,7 +135,8 @@ export const VideoContent = as<'div', VideoContentProps>(
               onLoadedMetadata: handleLoad,
               onError: handleError,
               autoPlay: true,
-              controls: true,
+              loop: loop ?? false,
+              controls: controls ?? true,
             })}
           </Box>
         )}

@@ -24,7 +24,7 @@ import {
   VideoContent,
 } from './message';
 import { UrlPreviewCard, UrlPreviewHolder } from './url-preview';
-import { Image, MediaControl, Video } from './media';
+import { Image, EmbedImage, MediaControl, Video } from './media';
 import { ImageViewer } from './image-viewer';
 import { PdfViewer } from './Pdf-viewer';
 import { TextViewer } from './text-viewer';
@@ -63,7 +63,7 @@ export function RenderMessageContent({
       <UrlPreviewHolder>
         {filteredUrls.map((url) => (
           <UrlPreviewCard key={url} url={url} ts={ts} />
-        ))}
+        )).slice(0,3)}
       </UrlPreviewHolder>
     );
   };
@@ -164,7 +164,7 @@ export function RenderMessageContent({
           <ImageContent
             {...props}
             autoPlay={mediaAutoLoad}
-            renderImage={(p) => <Image {...p} loading="lazy" />}
+            renderImage={(p) => <EmbedImage {...p} loading="lazy" />}
             renderViewer={(p) => <ImageViewer {...p} />}
           />
         )}

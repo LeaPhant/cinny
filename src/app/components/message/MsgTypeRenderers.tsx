@@ -24,7 +24,7 @@ import {
   IVideoInfo,
 } from '../../../types/matrix/common';
 import { FALLBACK_MIMETYPE, getBlobSafeMimeType } from '../../utils/mimeTypes';
-import { parseGeoUri, scaleYDimension } from '../../utils/common';
+import { parseGeoUri, scaleDimension } from '../../utils/common';
 import { Attachment, AttachmentBox, AttachmentContent, AttachmentHeader } from './attachment';
 import { FileHeader } from './FileHeader';
 
@@ -188,15 +188,10 @@ export function MImage({ content, renderImageContent, outlined }: MImageProps) {
   if (typeof mxcUrl !== 'string') {
     return <BrokenContent />;
   }
-  const height = scaleYDimension(imgInfo?.w || 400, 400, imgInfo?.h || 400);
 
   return (
     <Attachment outlined={outlined}>
-      <AttachmentBox
-        style={{
-          height: toRem(height < 48 ? 48 : height),
-        }}
-      >
+      <AttachmentBox>
         {renderImageContent({
           body: content.body || 'Image',
           info: imgInfo,
@@ -225,6 +220,7 @@ type MVideoProps = {
 export function MVideo({ content, renderAsFile, renderVideoContent, outlined }: MVideoProps) {
   const videoInfo = content?.info;
   const mxcUrl = content.file?.url ?? content.url;
+  console.log('mxc url', mxcUrl);
   const safeMimeType = getBlobSafeMimeType(videoInfo?.mimetype ?? '');
 
   if (!videoInfo || !safeMimeType.startsWith('video') || typeof mxcUrl !== 'string') {
@@ -234,13 +230,16 @@ export function MVideo({ content, renderAsFile, renderVideoContent, outlined }: 
     return <BrokenContent />;
   }
 
-  const height = scaleYDimension(videoInfo.w || 400, 400, videoInfo.h || 400);
+  console.log('video info', videoInfo);
+
+  const dim = scaleDimension(videoInfo?.w || 500, videoInfo?.h || 400, 16, 16, 500, 600);
 
   return (
     <Attachment outlined={outlined}>
       <AttachmentBox
         style={{
-          height: toRem(height < 48 ? 48 : height),
+          width: toRem(dim.w),
+          height: toRem(dim.h),
         }}
       >
         {renderVideoContent({
@@ -377,13 +376,13 @@ export function MSticker({ content, renderImageContent }: MStickerProps) {
   if (typeof mxcUrl !== 'string') {
     return <MessageBrokenContent />;
   }
-  const height = scaleYDimension(imgInfo?.w || 152, 152, imgInfo?.h || 152);
+  const dim = scaleDimension(imgInfo?.w || 152, imgInfo?.h || 152, 16, 16, 152, 152);
 
   return (
     <AttachmentBox
       style={{
-        height: toRem(height < 48 ? 48 : height),
-        width: toRem(152),
+        height: toRem(dim.h),
+        width: toRem(dim.w),
       }}
     >
       {renderImageContent({

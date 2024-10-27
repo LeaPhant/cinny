@@ -75,9 +75,11 @@ export const ImageContent = as<'div', ImageContentProps>(
     const [error, setError] = useState(false);
     const [viewer, setViewer] = useState(false);
 
+    const imageUrl = new URL(url).protocol == 'mxc:' ? mx.mxcUrlToHttp(url) : url;
+
     const [srcState, loadSrc] = useAsyncCallback(
       useCallback(
-        () => getFileSrcUrl(mx.mxcUrlToHttp(url) ?? '', mimeType || FALLBACK_MIMETYPE, encInfo),
+        () => getFileSrcUrl(imageUrl ?? '', mimeType || FALLBACK_MIMETYPE, encInfo),
         [mx, url, mimeType, encInfo]
       )
     );
@@ -151,7 +153,7 @@ export const ImageContent = as<'div', ImageContentProps>(
           </Box>
         )}
         {srcState.status === AsyncStatus.Success && (
-          <Box className={css.AbsoluteContainer}>
+          <Box>
             {renderImage({
               alt: body,
               title: body,
