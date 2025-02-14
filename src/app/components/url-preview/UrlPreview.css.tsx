@@ -21,6 +21,7 @@ export const UrlPreviewImg = style([
     height: toRem(100),
     objectFit: 'cover',
     objectPosition: 'center',
+    backgroundPosition: 'start',
     flexShrink: 0,
     overflow: 'hidden',
   },
