@@ -585,11 +585,14 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
         // otherwise we update timeline without paginating
         // so timeline can be updated with evt like: edits, reactions etc
         if (atBottomRef.current) {
-          if (document.hasFocus() && (!unreadInfo || mEvt.getSender() === mx.getUserId())) {
+          if (
+            /* document.hasFocus() */ true &&
+            (!unreadInfo || mEvt.getSender() === mx.getUserId())
+          ) {
             requestAnimationFrame(() => markAsRead(mx, mEvt.getRoomId()!));
           }
 
-          if (document.hasFocus()) {
+          if (/* document.hasFocus() */ true) {
             scrollToBottomRef.current.count += 1;
             scrollToBottomRef.current.smooth = false;
           } else if (!unreadInfo) {
@@ -733,7 +736,9 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
   useLayoutEffect(() => {
     const scrollEl = scrollRef.current;
     if (scrollEl) {
-      requestAnimationFrame(() => { scrollToBottom(scrollEl) });
+      requestAnimationFrame(() => {
+        scrollToBottom(scrollEl);
+      });
     }
   }, []);
 

@@ -186,7 +186,11 @@ function MessageNotifications() {
       data
     ) => {
       if (mx.getSyncState() !== 'SYNCING') return;
-      if (document.hasFocus() && (selectedRoomId === room?.roomId || notificationSelected)) return;
+      if (
+        /* document.hasFocus() */ true &&
+        (selectedRoomId === room?.roomId || notificationSelected)
+      )
+        return;
       if (
         !room ||
         !data.liveEvent ||

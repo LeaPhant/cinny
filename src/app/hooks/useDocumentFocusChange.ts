@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 
 export const useDocumentFocusChange = (onChange: (focus: boolean) => void) => {
   useEffect(() => {
-    let localFocus = document.hasFocus();
+    let localFocus = /* document.hasFocus() */ true;
 
     const handleFocus = () => {
-      if (document.hasFocus()) {
+      if (/* document.hasFocus() */ true) {
         if (localFocus) return;
         localFocus = true;
         onChange(localFocus);
