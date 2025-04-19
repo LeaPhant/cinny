@@ -6,10 +6,6 @@ import {
   Chip,
   Icon,
   Icons,
-  Modal,
-  Overlay,
-  OverlayBackdrop,
-  OverlayCenter,
   Spinner,
   Text,
   Tooltip,
@@ -18,25 +14,19 @@ import {
 } from 'folds';
 import classNames from 'classnames';
 import { BlurhashCanvas } from 'react-blurhash';
-import FocusTrap from 'focus-trap-react';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
+import { RenderViewerProps, ImageOverlay } from '../../ImageOverlay';
 import { IImageInfo, MATRIX_BLUR_HASH_PROPERTY_NAME } from '../../../../types/matrix/common';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import * as css from './style.css';
 import { bytesToSize } from '../../../utils/common';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
-import { stopPropagation } from '../../../utils/keyboard';
 import { decryptFile, downloadEncryptedMedia, mxcUrlToHttp } from '../../../utils/matrix';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { ModalWide } from '../../../styles/Modal.css';
 import { validBlurHash } from '../../../utils/blurHash';
 
-type RenderViewerProps = {
-  src: string;
-  alt: string;
-  requestClose: () => void;
-};
 type RenderImageProps = {
   alt: string;
   title: string;
@@ -118,30 +108,15 @@ export const ImageContent = as<'div', ImageContentProps>(
     return (
       <Box className={classNames(css.RelativeBase, className)} {...props} ref={ref}>
         {srcState.status === AsyncStatus.Success && (
-          <Overlay open={viewer} backdrop={<OverlayBackdrop />}>
-            <OverlayCenter>
-              <FocusTrap
-                focusTrapOptions={{
-                  initialFocus: false,
-                  onDeactivate: () => setViewer(false),
-                  clickOutsideDeactivates: true,
-                  escapeDeactivates: stopPropagation,
-                }}
-              >
-                <Modal
-                  className={ModalWide}
-                  size="500"
-                  onContextMenu={(evt: any) => evt.stopPropagation()}
-                >
-                  {renderViewer({
-                    src: srcState.data,
-                    alt: body,
-                    requestClose: () => setViewer(false),
-                  })}
-                </Modal>
-              </FocusTrap>
-            </OverlayCenter>
-          </Overlay>
+          <ImageOverlay
+            src={srcState.data}
+            alt={body}
+            viewer={viewer}
+            requestClose={() => {
+              setViewer(false);
+            }}
+            renderViewer={renderViewer}
+          />
         )}
         {typeof blurHash === 'string' && !load && (
           <BlurhashCanvas
