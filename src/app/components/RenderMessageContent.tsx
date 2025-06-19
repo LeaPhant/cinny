@@ -30,7 +30,7 @@ import { ImageViewer } from './image-viewer';
 import { PdfViewer } from './Pdf-viewer';
 import { TextViewer } from './text-viewer';
 import { testMatrixTo } from '../plugins/matrix-to';
-import { IImageContent } from '../../types/matrix/common';
+import { IImageContent, IVideoContent } from '../../types/matrix/common';
 
 type RenderMessageContentProps = {
   displayName: string;
@@ -209,6 +209,13 @@ export function RenderMessageContent({
   }
 
   if (msgType === MsgType.Video) {
+    const content: IVideoContent = getContent();
+    const videoInfo = content.info as any;
+
+    const autoPlay = videoInfo?.['fi.mau.autoplay'] ?? false;
+    const hideControls = videoInfo?.['fi.mau.hide_controls'] ?? false;
+    const loop = videoInfo?.['fi.mau.loop'] ?? false;
+
     return (
       <>
         <MVideo
@@ -221,6 +228,9 @@ export function RenderMessageContent({
               mimeType={mimeType}
               url={url}
               encInfo={encInfo}
+              autoPlay={autoPlay}
+              hideControls={hideControls}
+              loop={loop}
               renderThumbnail={
                 mediaAutoLoad
                   ? () => (
