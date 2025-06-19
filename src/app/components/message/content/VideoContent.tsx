@@ -40,6 +40,7 @@ type RenderVideoProps = {
   onError: () => void;
   autoPlay: boolean;
   controls: boolean;
+  loop: boolean;
 };
 type VideoContentProps = {
   body: string;
@@ -48,6 +49,8 @@ type VideoContentProps = {
   info: IVideoInfo & IThumbnailContent;
   encInfo?: EncryptedAttachmentInfo;
   autoPlay?: boolean;
+  hideControls?: boolean;
+  loop?: boolean;
   markedAsSpoiler?: boolean;
   spoilerReason?: string;
   renderThumbnail?: () => ReactNode;
@@ -65,6 +68,8 @@ export const VideoContent = as<'div', VideoContentProps>(
       autoPlay,
       markedAsSpoiler,
       spoilerReason,
+      hideControls,
+      loop,
       renderThumbnail,
       renderVideo,
       ...props
@@ -151,7 +156,8 @@ export const VideoContent = as<'div', VideoContentProps>(
               onLoadedMetadata: handleLoad,
               onError: handleError,
               autoPlay: true,
-              controls: true,
+              controls: !hideControls,
+              loop: loop ?? false,
             })}
           </Box>
         )}
