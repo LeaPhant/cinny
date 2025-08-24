@@ -43,6 +43,7 @@ type RenderVideoProps = {
   autoPlay: boolean;
   controls: boolean;
   loop: boolean;
+  muted: boolean;
 };
 type VideoContentProps = {
   body: string;
@@ -55,6 +56,9 @@ type VideoContentProps = {
   loop?: boolean;
   markedAsSpoiler?: boolean;
   spoilerReason?: string;
+  hideControls?: boolean;
+  loop?: boolean;
+  muted?: boolean;
   renderThumbnail?: () => ReactNode;
   renderVideo: (props: RenderVideoProps) => ReactNode;
 };
@@ -72,6 +76,7 @@ export const VideoContent = as<'div', VideoContentProps>(
       spoilerReason,
       hideControls,
       loop,
+      muted,
       renderThumbnail,
       renderVideo,
       ...props
@@ -174,6 +179,7 @@ export const VideoContent = as<'div', VideoContentProps>(
               autoPlay: true,
               controls: !hideControls,
               loop: loop ?? false,
+              muted: muted ?? false,
             })}
           </Box>
         )}

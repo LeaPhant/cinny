@@ -210,6 +210,7 @@ export function RenderMessageContent({
     const autoPlay = videoInfo?.['fi.mau.autoplay'] ?? false;
     const hideControls = videoInfo?.['fi.mau.hide_controls'] ?? false;
     const loop = videoInfo?.['fi.mau.loop'] ?? false;
+    const muted = videoInfo?.['fi.mau.no_audio'] ?? false;
 
     return (
       <>
@@ -224,6 +225,7 @@ export function RenderMessageContent({
               autoPlay={autoPlay}
               hideControls={hideControls}
               loop={loop}
+              muted={muted}
               renderThumbnail={
                 mediaAutoLoad
                   ? () => (
