@@ -888,6 +888,8 @@ function Messages() {
     settingsAtom,
     'hideMembershipEvents'
   );
+  const [showThreadEvents, setShowThreadEvents] = useSetting(settingsAtom, 'showThreadEvents');
+
   const [hideNickAvatarEvents, setHideNickAvatarEvents] = useSetting(
     settingsAtom,
     'hideNickAvatarEvents'
@@ -915,6 +917,14 @@ function Messages() {
               value={legacyUsernameColor}
               onChange={setLegacyUsernameColor}
             />
+          }
+        />
+      </SequenceCard>
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Show Thread Messages"
+          after={
+            <Switch variant="Primary" value={showThreadEvents} onChange={setShowThreadEvents} />
           }
         />
       </SequenceCard>
