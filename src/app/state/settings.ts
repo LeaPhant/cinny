@@ -38,6 +38,7 @@ export interface Settings {
   mediaAutoLoad: boolean;
   urlPreview: boolean;
   encUrlPreview: boolean;
+  gifvAutoPlay: boolean;
   showHiddenEvents: boolean;
   legacyUsernameColor: boolean;
 
@@ -73,6 +74,7 @@ const defaultSettings: Settings = {
   mediaAutoLoad: true,
   urlPreview: true,
   encUrlPreview: false,
+  gifvAutoPlay: true,
   showHiddenEvents: false,
   legacyUsernameColor: false,
 

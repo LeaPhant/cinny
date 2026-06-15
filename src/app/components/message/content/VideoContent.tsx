@@ -32,6 +32,8 @@ import {
 } from '../../../utils/matrix';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { validBlurHash } from '../../../utils/blurHash';
+import { useSetting } from '../../../state/hooks/settings';
+import { settingsAtom } from '../../../state/settings';
 
 type RenderVideoProps = {
   title: string;
@@ -80,6 +82,8 @@ export const VideoContent = as<'div', VideoContentProps>(
     const useAuthentication = useMediaAuthentication();
     const blurHash = validBlurHash(info.thumbnail_info?.[MATRIX_BLUR_HASH_PROPERTY_NAME]);
 
+    const [gifvAutoPlay] = useSetting(settingsAtom, 'gifvAutoPlay');
+
     const [load, setLoad] = useState(false);
     const [error, setError] = useState(false);
     const [blurred, setBlurred] = useState(markedAsSpoiler ?? false);
@@ -111,8 +115,8 @@ export const VideoContent = as<'div', VideoContentProps>(
     };
 
     useEffect(() => {
-      if (autoPlay) loadSrc();
-    }, [autoPlay, loadSrc]);
+      if (autoPlay && gifvAutoPlay) loadSrc();
+    }, [autoPlay, gifvAutoPlay, loadSrc]);
 
     return (
       <Box className={classNames(css.RelativeBase, className)} {...props} ref={ref}>
@@ -134,7 +138,7 @@ export const VideoContent = as<'div', VideoContentProps>(
             {renderThumbnail()}
           </Box>
         )}
-        {!autoPlay && !blurred && srcState.status === AsyncStatus.Idle && (
+        {(!autoPlay || !gifvAutoPlay) && !blurred && srcState.status === AsyncStatus.Idle && (
           <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
             <Button
               variant="Secondary"

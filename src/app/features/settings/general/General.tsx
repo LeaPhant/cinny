@@ -897,6 +897,7 @@ function Messages() {
   const [mediaAutoLoad, setMediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
   const [urlPreview, setUrlPreview] = useSetting(settingsAtom, 'urlPreview');
   const [encUrlPreview, setEncUrlPreview] = useSetting(settingsAtom, 'encUrlPreview');
+  const [gifvAutoPlay, setGifvAutoPlay] = useSetting(settingsAtom, 'gifvAutoPlay');
   const [showHiddenEvents, setShowHiddenEvents] = useSetting(settingsAtom, 'showHiddenEvents');
 
   return (
@@ -974,6 +975,12 @@ function Messages() {
         <SettingTile
           title="Url Preview in Encrypted Room"
           after={<Switch variant="Primary" value={encUrlPreview} onChange={setEncUrlPreview} />}
+        />
+      </SequenceCard>
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Autoplay gifv videos (e.g. bridged tenor gifs)"
+          after={<Switch variant="Primary" value={gifvAutoPlay} onChange={setGifvAutoPlay} />}
         />
       </SequenceCard>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
