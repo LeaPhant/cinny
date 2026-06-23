@@ -87,6 +87,7 @@ export const VideoContent = as<'div', VideoContentProps>(
     const [load, setLoad] = useState(false);
     const [error, setError] = useState(false);
     const [blurred, setBlurred] = useState(markedAsSpoiler ?? false);
+    const [hovered, setHovered] = useState(false);
 
     const [srcState, loadSrc] = useAsyncCallback(
       useCallback(async () => {
@@ -118,8 +119,19 @@ export const VideoContent = as<'div', VideoContentProps>(
       if (autoPlay && gifvAutoPlay) loadSrc();
     }, [autoPlay, gifvAutoPlay, loadSrc]);
 
+    useEffect(() => {
+      if (srcState.status === AsyncStatus.Idle && !gifvAutoPlay && hideControls && hovered)
+        loadSrc();
+    }, [srcState, gifvAutoPlay, hideControls, hovered, loadSrc]);
+
     return (
-      <Box className={classNames(css.RelativeBase, className)} {...props} ref={ref}>
+      <Box
+        className={classNames(css.RelativeBase, className)}
+        {...props}
+        ref={ref}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
         {typeof blurHash === 'string' && !load && (
           <BlurhashCanvas
             style={{ width: '100%', height: '100%' }}
@@ -129,7 +141,7 @@ export const VideoContent = as<'div', VideoContentProps>(
             punch={1}
           />
         )}
-        {renderThumbnail && !load && (
+        {renderThumbnail && (!load || (!gifvAutoPlay && !hovered)) && (
           <Box
             className={classNames(css.AbsoluteContainer, blurred && css.Blur)}
             alignItems="Center"
@@ -138,7 +150,7 @@ export const VideoContent = as<'div', VideoContentProps>(
             {renderThumbnail()}
           </Box>
         )}
-        {(!autoPlay || !gifvAutoPlay) && !blurred && srcState.status === AsyncStatus.Idle && (
+        {!autoPlay && !blurred && srcState.status === AsyncStatus.Idle && (
           <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
             <Button
               variant="Secondary"
@@ -152,7 +164,7 @@ export const VideoContent = as<'div', VideoContentProps>(
             </Button>
           </Box>
         )}
-        {srcState.status === AsyncStatus.Success && (
+        {srcState.status === AsyncStatus.Success && (!hideControls || gifvAutoPlay || hovered) && (
           <Box className={classNames(css.AbsoluteContainer, blurred && css.Blur)}>
             {renderVideo({
               title: body,
@@ -230,7 +242,7 @@ export const VideoContent = as<'div', VideoContentProps>(
             </TooltipProvider>
           </Box>
         )}
-        {!load && typeof info.size === 'number' && (
+        {!load && !hideControls && typeof info.size === 'number' && (
           <Box
             className={css.AbsoluteFooter}
             justifyContent="SpaceBetween"
