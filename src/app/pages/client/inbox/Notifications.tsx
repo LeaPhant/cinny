@@ -97,6 +97,7 @@ import {
 } from '../../../hooks/useMemberPowerTag';
 import { useRoomCreatorsTag } from '../../../hooks/useRoomCreatorsTag';
 import { useRoomCreators } from '../../../hooks/useRoomCreators';
+import { useSelfNameColor } from '../../../hooks/useSelfNameColor';
 
 type RoomNotificationsGroup = {
   roomId: string;
@@ -235,6 +236,7 @@ function RoomNotificationsGroupComp({
 
   const theme = useTheme();
   const accessibleTagColors = useAccessiblePowerTagColors(theme.kind, creatorsTag, powerLevelTags);
+  const selfNameColor = useSelfNameColor();
 
   const mentionClickHandler = useMentionClickHandler(room.roomId);
   const spoilerClickHandler = useSpoilerClickHandler();
@@ -467,7 +469,9 @@ function RoomNotificationsGroupComp({
             ? getPowerTagIconSrc(mx, useAuthentication, memberPowerTag.icon)
             : undefined;
 
-          const usernameColor = legacyUsernameColor ? colorMXID(event.sender) : tagColor;
+          const usernameColor =
+            selfNameColor(event.sender) ??
+            (legacyUsernameColor ? colorMXID(event.sender) : tagColor);
 
           return (
             <SequenceCard

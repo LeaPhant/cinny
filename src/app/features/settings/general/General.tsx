@@ -50,6 +50,9 @@ import { useMessageLayoutItems } from '../../../hooks/useMessageLayout';
 import { useMessageSpacingItems } from '../../../hooks/useMessageSpacing';
 import { useDateFormatItems } from '../../../hooks/useDateFormat';
 import { SequenceCardStyle } from '../styles.css';
+import { HexColorPickerPopOut } from '../../../components/HexColorPickerPopOut';
+import { HexColorPicker } from 'react-colorful';
+import { PowerColorBadge } from '../../../components/power/PowerColorBadge';
 
 type ThemeSelectorProps = {
   themeNames: Record<string, string>;
@@ -303,6 +306,32 @@ function PageZoomInput() {
   );
 }
 
+function SelfColorPicker() {
+  const [selfColor, setSelfColor] = useSetting(settingsAtom, 'selfNameColor');
+
+  return (
+    <HexColorPickerPopOut
+      picker={<HexColorPicker color={selfColor} onChange={setSelfColor} />}
+      onRemove={() => setSelfColor(undefined)}
+    >
+      {(openPicker, opened) => (
+        <Button
+          aria-pressed={opened}
+          onClick={openPicker}
+          size="300"
+          type="button"
+          variant="Secondary"
+          fill="Soft"
+          radii="300"
+          before={<PowerColorBadge color={selfColor} />}
+        >
+          <Text size="B300">Pick</Text>
+        </Button>
+      )}
+    </HexColorPickerPopOut>
+  );
+}
+
 function Appearance() {
   const [systemTheme, setSystemTheme] = useSetting(settingsAtom, 'useSystemTheme');
   const [monochromeMode, setMonochromeMode] = useSetting(settingsAtom, 'monochromeMode');
@@ -349,6 +378,14 @@ function Appearance() {
 
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile title="Page Zoom" after={<PageZoomInput />} />
+      </SequenceCard>
+
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Self Username Color"
+          description="Note: this is only visible to you."
+          after={<SelfColorPicker />}
+        />
       </SequenceCard>
     </Box>
   );

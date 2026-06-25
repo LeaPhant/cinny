@@ -86,6 +86,7 @@ import {
   useGetMemberPowerTag,
 } from '../../../hooks/useMemberPowerTag';
 import { useRoomCreatorsTag } from '../../../hooks/useRoomCreatorsTag';
+import { useSelfNameColor } from '../../../hooks/useSelfNameColor';
 
 type PinnedMessageProps = {
   room: Room;
@@ -114,6 +115,7 @@ function PinnedMessage({
   const pinnedEvent = useRoomEvent(room, eventId);
   const useAuthentication = useMediaAuthentication();
   const mx = useMatrixClient();
+  const selfNameColor = useSelfNameColor();
 
   const [unpinState, unpin] = useAsyncCallback(
     useCallback(() => {
@@ -187,7 +189,8 @@ function PinnedMessage({
     ? getPowerTagIconSrc(mx, useAuthentication, memberPowerTag.icon)
     : undefined;
 
-  const usernameColor = legacyUsernameColor ? colorMXID(sender) : tagColor;
+  const usernameColor =
+    selfNameColor(sender) ?? (legacyUsernameColor ? colorMXID(sender) : tagColor);
 
   return (
     <ModernLayout

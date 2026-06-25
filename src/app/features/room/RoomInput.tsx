@@ -119,6 +119,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useRoomCreatorsTag } from '../../hooks/useRoomCreatorsTag';
 import { usePowerLevelTags } from '../../hooks/usePowerLevelTags';
 import { useComposingCheck } from '../../hooks/useComposingCheck';
+import { useSelfNameColor } from '../../hooks/useSelfNameColor';
 
 const getReplyContent = (replyDraft: IReplyDraft | undefined): IEventRelation => {
   if (!replyDraft) return {};
@@ -165,6 +166,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
     const [replyDraft, setReplyDraft] = useAtom(roomIdToReplyDraftAtomFamily(roomId));
     const replyUserID = replyDraft?.userId;
 
+    const selfNameColor = useSelfNameColor();
     const powerLevelTags = usePowerLevelTags(room, powerLevels);
     const creatorsTag = useRoomCreatorsTag();
     const getMemberPowerTag = useGetMemberPowerTag(room, creators, powerLevels);
@@ -180,7 +182,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
       ? accessibleTagColors.get(replyPowerTag.color)
       : undefined;
     const replyUsernameColor =
-      legacyUsernameColor || direct ? colorMXID(replyUserID ?? '') : replyPowerColor;
+      selfNameColor(replyUserID) ??
+      (legacyUsernameColor || direct ? colorMXID(replyUserID ?? '') : replyPowerColor);
 
     const [uploadBoard, setUploadBoard] = useState(true);
     const [selectedFiles, setSelectedFiles] = useAtom(roomIdToUploadItemsAtomFamily(roomId));

@@ -25,6 +25,7 @@ export interface Settings {
   editorToolbar: boolean;
   twitterEmoji: boolean;
   pageZoom: number;
+  selfNameColor?: string;
   hideActivity: boolean;
 
   isPeopleDrawer: boolean;
