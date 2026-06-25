@@ -51,6 +51,7 @@ import {
 } from '../../hooks/useMemberPowerTag';
 import { useRoomCreators } from '../../hooks/useRoomCreators';
 import { useRoomCreatorsTag } from '../../hooks/useRoomCreatorsTag';
+import { useSelfNameColor } from '../../hooks/useSelfNameColor';
 
 type SearchResultGroupProps = {
   room: Room;
@@ -87,6 +88,7 @@ export function SearchResultGroup({
 
   const theme = useTheme();
   const accessibleTagColors = useAccessiblePowerTagColors(theme.kind, creatorsTag, powerLevelTags);
+  const selfNameColor = useSelfNameColor();
 
   const mentionClickHandler = useMentionClickHandler(room.roomId);
   const spoilerClickHandler = useSpoilerClickHandler();
@@ -246,7 +248,9 @@ export function SearchResultGroup({
             ? getPowerTagIconSrc(mx, useAuthentication, memberPowerTag.icon)
             : undefined;
 
-          const usernameColor = legacyUsernameColor ? colorMXID(event.sender) : tagColor;
+          const usernameColor =
+            selfNameColor(event.sender) ??
+            (legacyUsernameColor ? colorMXID(event.sender) : tagColor);
 
           return (
             <SequenceCard

@@ -12,6 +12,7 @@ import { scaleSystemEmoji } from '../../plugins/react-custom-html-parser';
 import { useRoomEvent } from '../../hooks/useRoomEvent';
 import colorMXID from '../../../util/colorMXID';
 import { GetMemberPowerTag } from '../../hooks/useMemberPowerTag';
+import { useSelfNameColor } from '../../hooks/useSelfNameColor';
 
 type ReplyLayoutProps = {
   userColor?: string;
@@ -88,8 +89,10 @@ export const Reply = as<'div', ReplyProps>(
     const sender = replyEvent?.getSender();
     const powerTag = sender ? getMemberPowerTag?.(sender) : undefined;
     const tagColor = powerTag?.color ? accessibleTagColors?.get(powerTag.color) : undefined;
+    const selfNameColor = useSelfNameColor();
 
-    const usernameColor = legacyUsernameColor ? colorMXID(sender ?? replyEventId) : tagColor;
+    const usernameColor =
+      selfNameColor(sender) ?? (legacyUsernameColor ? colorMXID(sender ?? replyEventId) : tagColor);
 
     const fallbackBody = replyEvent?.isRedacted() ? (
       <MessageDeletedContent />
