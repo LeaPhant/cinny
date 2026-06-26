@@ -952,7 +952,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
     [mx, room, editor]
   );
 
-  const handleReplyClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+  const handleReplyClick: MouseEventHandler<HTMLElement> = useCallback(
     (evt, startThread = false) => {
       const replyId = evt.currentTarget.getAttribute('data-event-id');
       if (!replyId) {

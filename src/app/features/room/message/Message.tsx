@@ -58,7 +58,7 @@ import {
   isRoomAlias,
   mxcUrlToHttp,
 } from '../../../utils/matrix';
-import { MessageLayout, MessageSpacing } from '../../../state/settings';
+import { MessageLayout, MessageSpacing, settingsAtom } from '../../../state/settings';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useRecentEmoji } from '../../../hooks/useRecentEmoji';
 import * as css from './styles.css';
@@ -80,6 +80,7 @@ import { PowerIcon } from '../../../components/power';
 import colorMXID from '../../../../util/colorMXID';
 import { getPowerTagIconSrc } from '../../../hooks/useMemberPowerTag';
 import { useSelfNameColor } from '../../../hooks/useSelfNameColor';
+import { useSetting } from '../../../state/hooks/settings';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -668,10 +669,7 @@ export type MessageProps = {
   messageSpacing: MessageSpacing;
   onUserClick: MouseEventHandler<HTMLButtonElement>;
   onUsernameClick: MouseEventHandler<HTMLButtonElement>;
-  onReplyClick: (
-    ev: Parameters<MouseEventHandler<HTMLButtonElement>>[0],
-    startThread?: boolean
-  ) => void;
+  onReplyClick: (ev: Parameters<MouseEventHandler<HTMLElement>>[0], startThread?: boolean) => void;
   onEditId?: (eventId?: string) => void;
   onReactionToggle: (targetEventId: string, key: string, shortcode?: string) => void;
   reply?: ReactNode;
@@ -729,6 +727,7 @@ export const Message = as<'div', MessageProps>(
     const [menuAnchor, setMenuAnchor] = useState<RectCords>();
     const [emojiBoardAnchor, setEmojiBoardAnchor] = useState<RectCords>();
     const selfNameColor = useSelfNameColor();
+    const [doubleClickEditReply] = useSetting(settingsAtom, 'doubleClickEditReply');
 
     const senderDisplayName =
       getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
@@ -875,6 +874,14 @@ export const Message = as<'div', MessageProps>(
       }, 100);
     };
 
+    const handleDoubleClick: MouseEventHandler<HTMLDivElement> = (e) => {
+      if (canEditEvent(mx, mEvent) && onEditId) {
+        onEditId(mEvent.getId());
+      } else {
+        onReplyClick(e);
+      }
+    };
+
     const isThreadedMessage = mEvent.threadRootId !== undefined;
 
     return (
@@ -891,6 +898,8 @@ export const Message = as<'div', MessageProps>(
         {...hoverProps}
         {...focusWithinProps}
         ref={ref}
+        data-event-id={doubleClickEditReply ? mEvent.getId() : undefined}
+        onDoubleClick={doubleClickEditReply ? handleDoubleClick : undefined}
       >
         {!edit && (hover || !!menuAnchor || !!emojiBoardAnchor) && (
           <div className={css.MessageOptionsBase}>
