@@ -40,6 +40,7 @@ export interface Settings {
   urlPreview: boolean;
   encUrlPreview: boolean;
   gifvAutoPlay: boolean;
+  doubleClickEditReply: boolean;
   showHiddenEvents: boolean;
   legacyUsernameColor: boolean;
 
@@ -76,6 +77,7 @@ const defaultSettings: Settings = {
   urlPreview: true,
   encUrlPreview: false,
   gifvAutoPlay: true,
+  doubleClickEditReply: false,
   showHiddenEvents: false,
   legacyUsernameColor: false,
 
